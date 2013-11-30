@@ -1,0 +1,70 @@
+/*
+Author:Sanjeev Kumar (aka san)
+e-mail:asksan@live.ca
+File Version: 1.1.0
+description:
+        This code creates camera from selected view. A feature that exist in 3DS max. in Create Camera options.
+
+notes:
+	Simple run you create camera from existing camera view transformations or press "ALT" to frame the newly created camera with existing camera.
+Info: In both cases newly created camera is selected.
+   I tested that code should work any of maya version 8 and after.
+   Did not check for earlier versions.
+
+usage :    1.source selViewCamera.mel
+			2.drag and drop "selViewCamera" to your Shelf to run fro shelf
+            or run "selViewCamera" everytime to create camera from selected camera 
+            view
+	if pressed alt , the new camera is FrameSelected,
+	if pressed Ctrl, the you see through newly created camera
+	if pressed Ctrl+Alt you see through newly created camera & Attribute additor is displayed (only choose this option Attribute Editor is not open or else script will hide it.) 
+
+*/
+global proc selViewCamera()
+{
+  string $camera;
+
+  // First get the panel that currently has focus
+  string $panel = `getPanel -wf`;
+
+  // Compare the panel's type to confirm it is a "modelPanel"
+  if ( "modelPanel" == `getPanel -to $panel` )
+  {
+    // Get the name of the camera using the ‘modelEditor’ command
+    $camera = `modelEditor -q -camera $panel`;
+  }
+// creates camera from the selected view i.e current focus
+string $newCam[]= `duplicate -st $camera`;
+//select -add $camera;
+
+$strAll=`ls`;
+$szLast=`size($strAll)`;
+string $strLast=$strAll[$szLast-2];
+pickWalk -d up;
+int $mods = `getModifiers`;
+$strAll=`ls`;
+$szLast=`size($strAll)`;
+string $strLast=$strAll[$szLast-2];
+select $strLast;
+ShowSelectedObjects;
+if	($mods == 8)
+	{
+		FrameSelected;
+	}
+
+if	($mods == 4)
+	{
+		select -r $newCam[0];
+		lookThroughModelPanelClipped $newCam[0] modelPanel4 0.001 1000;
+   
+	}
+if	($mods == 5)
+	{
+		select -r $newCam[0];
+		lookThroughModelPanelClipped $newCam[0] modelPanel4 0.001 1000;
+		ToggleAttributeEditor;
+	}
+    
+  
+
+}
